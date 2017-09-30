@@ -51,4 +51,106 @@ public class dp {
         }
         return dp[less - 1];
     }
+
+    //给定指定面额，给出一个数sum，算出组成sum的最少纸币数量、
+    public int minMoneyNum(int[] money, int sum) {
+        if (money == null || money.length == 0 || sum < 0){
+            return -1;
+        }
+        int n = money.length;
+        int max =   Integer.MAX_VALUE;
+        int[][] dp = new int[money.length][sum + 1];
+        for (int j = 1; j <= sum; j++) {
+            dp[0][j]  = max;
+            if (j - money[0] >= 0 && dp[0][j - money[0] != max]){
+                dp[0][j] = dp[0][j] - money[0] + 1;
+            }
+        }
+        int left = 0;
+        for (int i = 1; i < n; i++) {
+            for (int j = 1; j <= sum; j++){
+                left = max;
+                if (j - money[i] >= 0 && dp[i][j-money[i]] != max) {
+                    left = dp[i][j-money[i]] + 1;
+                }
+                dp[i][j] = Math.min(left, dp[i - 1][j]);
+            }
+        }
+        return dp[n - 1][sum] != max ?dp[n - 1][sum] : 1;
+    }
+
+    //用压缩空间的方法来解决上述问题
+    public int minMoneyNum2(int[] money, int sum) {
+        if(money == null || money.length == 0 || sum < 0){
+            return -1;
+        }
+        int[] dp = new int[sum + 1];
+        int max = Integer.MAX_VALUE;
+        for (int i = 1; i <= sum; i++) {
+            dp[i] = max;
+            if(i - money[0] >= 0 && dp[i-money[0]] != max){
+                dp[i] = dp[i - money[0]] + 1;
+            }
+        }
+        int temp = 0;
+        for (int i = 1; i < money.length)
+            for(int j = 1; j <= sum; j++) {
+                temp = max;
+                if (j - money[i] >= 0 && dp[j - money[i] != max]){
+                    temp = dp[j - money[i]] + 1;
+                }
+                dp[j] = Math.min(temp, dp[j]);
+        }
+        return dp[sum] == max ? -1 : dp[sum];
+    }
+
+    //上述问题的修改版本：数组中的值可以重复，代表纸币值
+    public int minCoins3(int[] arr, int sum) {
+        if (arr == null || arr.length == 0 || sum < 0) {
+            return -1;
+        }
+        int n = arr.length;
+        int max = Integer.MAX_VALUE;
+        int[][] dp = new int[n][sum + 1];
+        for (int j = 1; j <= sum; j++){
+           dp[0][j] = max;
+        }
+        if(arr[0] <= sum) {
+            dp[arr[0]] = 1;
+        }
+        int leftup = 0;
+
+        for (int i = 1; i < n; i++) {
+            for(int j = 1; j <= sum; j++){
+                leftup = max;
+                if(j - arr[i] >= 0 && dp[i - 1][j - arr[i]] != max){
+                    leftup = dp[i - ][j - arr[i]] + 1;
+                }
+                dp[i][j] = Math.min(leftup, dp[i-1][j]);
+            }
+        }
+        return dp[n - 1][sum] == max ? -1 : dp[n - 1][sum];
+    }
+    //压缩空间
+    public int minCoinS3(int[] arr, int sum){
+        if (arr == null || arr.length == 0 || sum < 0)
+            return -1;
+        int n = arr.length;
+        int max = Integer.MAX_VALUE;
+        int[] dp = new int[sum + 1];
+        for (int i = 0; i <= sum; i++)
+            dp[i] = max;
+        if(arr[0] <= sum) {
+            dp[arr[0]] = 1;
+        }
+        int temp = 0;
+        for (int i = 1; i < n; i++)
+            for (int j = 1; j <= sum; j++){
+                temp = max;
+                if (j - arr[i] >= 0 && dp[j - arr[i]] != max){
+                    temp = dp[j - arr[i]] +1;
+                }
+                dp[j] = Math.min(temp, dp[j]);
+            }
+    }
 }
