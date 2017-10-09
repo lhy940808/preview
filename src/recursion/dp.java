@@ -153,4 +153,192 @@ public class dp {
                 dp[j] = Math.min(temp, dp[j]);
             }
     }
+
+    //有一个数组组成的纸币面值，和一个指定的找钱数，求一共有多少种找钱的方法
+    //方法一：暴力递归
+    public int coinsl(int[] arr, int sum) {
+        if (arr == null || arr.length == 0 || sum < 0)
+            return 0;
+        return process(arr, 0, sum);
+    }
+
+    private int process(int[] arr, int index, int sum) {
+        int res = 0;
+        if (index == arr.length) {
+            res = sum == 0 ? 1 : 0;
+        }else{
+            for (int i = 0; arr[index] * i <= sum; i++) {
+                res += process(arr, index + 1, sum - arr[index] *i);
+            }
+        }
+        return res;
+    }
+
+    //方法二、利用记忆搜索法对上述递归方法进行优化
+    public int coins2(int[] arr, int sum) {
+        if (arr == null || arr.length == 0 || sum < 0)
+            return 0;
+        int[][] map = new int[arr.length + 1][sum + 1];
+        return process2(arr, 0, sum, map);
+    }
+
+    private int process2(int[] arr, int index, int sum, int[][] map) {
+        int res = 0;
+        if (index == arr.length) {
+            res = sum == 0 ? 1 : 0;
+        }else{
+            int mapValue = 0;
+            for(int i = 0; arr[index] * i <= sum; i++) {
+                mapValue = map[index + 1][sum - arr[index] * i];
+                if (mapValue != 0) {
+                    res += mapValue == -1 ? 0 : mapValue;
+                }else {
+                    res += process2(arr, index + 1, sum - arr[index] * i,map);
+                }
+            }
+        }
+        map[index][sum] = res == 0 ? -1 : res;
+        return res;
+    }
+
+    //方法三、使用动态规划的方法来进行计算
+    public int coins3(int[] arr, int sum) {
+        if (arr == null || arr.length == 0 || sum < 0) {
+            return 0;
+        }
+        int[][] dp = new int[arr.length][sum + 1];
+        for (int i = 0; i < arr.length; i++) {
+            dp[i][0] = 1;
+        }
+        for (int j = 1; arr[0] * j <= sum; j++) {
+            dp[0][arr[0] * j] = 1;
+        }
+        int num = 0;
+        for (int i = 1; i < arr.length; i++)
+            for(int j = 1; j <= sum; j++) {
+                num = 0;
+                for (int k = 0; j - arr[i] * k >= 0; k++) {
+                    num += dp[i - 1][j - arr[i] * k];
+                }
+                dp[i][j] = num;
+            }
+        return dp[arr.length - 1][sum];
+    }
+    //方法四、简化上述步骤
+    public int coins4(int[] arr, int sum) {
+        if (arr == null || arr.length == 0 || sum < 0)
+            return 0;
+        int[][] dp = new int[arr.length][sum + 1];
+        for(int i = 0; i < arr.length; i++)
+            dp[i][0] = 1;
+        for(int j = 1; sum - arr[0] * j >= 0; j++)
+            dp[0][arr[0] * j] = 1;
+        int num = 0;
+        for (int i = 1; i < arr.length; i++)
+            for(int j = 1; j <= sum) {
+                dp[i][j] = dp[i - 1][j];
+                dp[i][j] += j - arr[i] >= 0 ? dp[i][j - arr[i]] : 0;
+            }
+        return dp[arr.length - 1][sum];
+    }
+    //方法五，上述方法加上空间压缩
+    public int coins5(int[] arr, int sum) {
+        if (arr == null || arr.length == 0 || sum < 0) {
+            return 0;
+        }
+        int[] dp = new int[sum + 1];
+        for (int j = 1; arr[0] * j <= sum; j++)
+            dp[j * arr[0]] = 1;
+        for (int i = 1; i < arr.length; i++)
+            for (int j = 1; j <= sum; j++){
+                dp[j] += j - arr[i] >= 0 ? dp[j - arr[i]] : 0;
+            }
+        return dp[sum];
+    }
+
+    //求最长递增子序列
+    public int[] subQuen(int[] arr) {
+        int[] dp = new int[arr.length];
+        for (int i = 0; i < arr.length; i++) {
+            dp[i] = 1;
+            for (int j = 0; j < i; j++) {
+                if (arr[j] < arr[i]){
+                    dp[i] = Math.min(dp[i], dp[j] + 1);
+                }
+            }
+        }
+        return dp;
+    }
+    //上述方法是求得dp数组，那么如何根据dp求得最长递增子序列呢
+    public int[] generateLIS(int[] dp,int[] arr)  {
+        int max = arr[0];
+        int maxIndex = 0;
+        for (int i = 0; i < dp.length; i++){
+            if (dp[i] > max){
+                max = dp[i];
+                maxIndex = i;
+            }
+        }
+        int[] lis = new int[max];
+        lis[lis.length - 1] = arr[maxIndex];
+        int len = lis.length - 2;
+        //从maxindex位置开始逆序查找
+        int next = maxIndex;
+        for (int i = maxIndex - 1; i >=0; i--){
+            if (arr[i] < arr[next] && dp[i] = dp[next] - 1) {
+                next = i;
+                lis[len--] = arr[i];
+            }
+        }
+        return lis;
+    }
+
+    //用优化的方法来解决计算dp数组
+    public int[] getDp2(int[] arr) {
+        int[] dp = new int[arr.length];
+        int[] ends = new int[arr.length];
+        int right = 0;
+        int len = 1;
+        ends[0] = arr[0];
+        for (int i = 0; i < arr.length; i++) {
+            int index = getPosition(ends,right);
+            if (index > -1) {
+                dp[i] = index + 1;
+                ends[index] = arr[i];
+            }else {
+                ends[++len] = arr[i];
+                dp[i] = len;
+            }
+        }
+        return dp;
+    }
+
+    private int getPosition(int[] ends, int right) {
+
+    }
+    public int[] getdp(int[] arr) {
+        int[] dp = new int[arr.length];
+        int[] ends = new int[arr.length];
+        ends[0] = arr[0];
+        dp[0] = 1;
+        int right = 0;
+        int l = 0;
+        int r = 0;
+        int m = 0;
+        for (int i = 0; i < arr.length; i++) {
+            l = 0;
+            r = right;
+            while (l < = r) {
+                m = (l + r) / 2;
+                if (arr[i] > ends[m]) {
+                    l = m + 1;
+                }else {
+                    r = m - 1;
+                }
+            }
+            right = Math.max(right, l);
+            ends[l] = arr[i];
+            dp[i] = l + 1;
+        }
+    }
 }
