@@ -1,8 +1,6 @@
 package LinkedList;
 
-/**
- * Created by shixi_haiyan5 on 2017/8/26.
- */
+
 public class doubleLinkdeList {
 
     public DoubleNode removeLastKthNode(DoubleNode head,int lastKth){

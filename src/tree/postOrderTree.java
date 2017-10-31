@@ -2,9 +2,6 @@ package tree;
 
 import java.util.Stack;
 
-/**
- * Created by shixi_haiyan5 on 2017/9/11.
- */
 public class postOrderTree {
     //采用非递归方式后序遍历树
 
@@ -63,4 +60,60 @@ public class postOrderTree {
         return lSize > rSize ? lBST : rBST;
 
     }
+    //判断一棵树是否为二叉树
+    public boolean isBalance(tree root) {
+        boolean[] res = new boolean[1];
+        res[0] = true;
+        getHeight(root, 1, res);
+        return res[0];
+    }
+
+    private int getHeight(tree root, int level, boolean[] res) {
+        if (root == null) {
+            return level;
+        }
+        int lH = getHeight(root.left, level + 1, res);
+        if (!res[0]){
+            return level;
+        }
+        int rH = getHeight(root.right, level + 1, res);
+        if (!res[0]){
+            return level;
+        }
+        if (Math.abs(lH - rH) > 1) {
+            res[0] = false;
+        }
+        return Math.max(lH, rH);
+    }
+
+    public boolean  isPostArray(int[] arr){
+        if (arr == null || arr.length == 0) {
+            return false;
+        }
+        return isPost(arr, 0, arr.length - 1);
+    }
+
+    private boolean isPost(int[] arr, int start, int end) {
+        if (start == end) {
+            return true;
+        }
+        int less = -1;
+        int more = end;
+        for(int i = start; i < end; i++) {
+            if (arr[end] > arr[i]) {
+                less = i;
+            }else {
+                more = more == end ? -1 : more;
+            }
+        }
+
+        if(less == -1 || more == end) {
+            return isPost(arr, start, end - 1);
+        }
+        if(less != more - 1) {
+            return false;
+        }
+        return isPost(arr, start, less)  && isPost(arr, more, end - 1);
+    }
+
 }
