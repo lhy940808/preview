@@ -358,4 +358,133 @@ public class dp {
             func(n - 1 ,mid, from, to);
         }
     }
+
+    //问题描述：字符串交错问题，有字符串str1和str2，判断aim是否由str1和str2交错组成，并且组成的顺序不变，比如AB和12，A1B2就是交错组成的
+
+    //方法一：经典的dp算法解决
+    public boolean isCross1(String str1, String str2, String aim) {
+        if (str1 == null || str2 == null aim || == null)
+            return false;
+        char[] ch1 = str1.toCharArray();
+        char[] ch2 = str2.toCharArray();
+        char[] chaim = aim.toCharArray();
+        if (chaim.length != ch1.length + ch2.length) {
+            return false;
+        }
+        boolean[][] dp = new boolean[ch1.length][ch2.length];
+        dp[0][0] = true;
+        for (int i = 0; i < ch1.length; i++) {
+            if (ch1[i - 1] != chaim[i - 1])
+                break;
+            dp[i][0] = true;
+        }
+
+        for (int j = 0; j < ch2.length; j++ ) {
+            if (ch2[j - 1] != chaim[j - 1])
+                break;
+            dp[0][j] = true;
+        }
+        for(int i = 1; i < ch1.length; i++)
+            for(int j =1; j < ch2.length; j++)
+            {
+                if ((dp[i - 1][j] && ch1[i - 1] == chaim[i + j - 1]) ||(dp[i][j - 1]) && ch2[j - 1] == chaim[i + j - 1]) {
+                    dp[i][j] = true;
+                }
+            }
+        return dp[ch1.length][ch2.length];
+    }
+
+    //方法二：压缩空间的动态规划
+    public boolean isCross2(String str1, String str2, String aim) {
+        if (str1 == null || str2 == null || aim == null)
+            return false;
+        char[] ch1 = str1.toCharArray();
+        char[] ch2 = str2.toCharArray();
+        char[] chaim = aim.toCharArray();
+        if (chaim.length != ch1.length + ch2.length) {
+            return false;
+        }
+        char[] shorts = ch1.length < ch2.length ? ch1 : ch2;
+        char[] longs = ch1.length < ch2.length ? ch2 : ch1;
+        boolean[] dp = new boolean[shorts.length + 1];
+        //首先计算第一行的数据
+        dp[0] = true;
+        for(int i = 0; i < shorts.length + 1; i++) {
+            if (dp[i -1] && aim[i] == shorts[i]) {
+                dp[i] = true;
+            }
+        }
+        for (int i = 1; i <= longs.length ; i++) {
+            dp[0] = dp[0] && longs[i - 1] == aim[i -1];
+            for(int j = 1; j < shorts.length + 1; j++){
+                if ((dp[j - 1] && shorts[j - 1] == aim[i + j - 1]) || (dp[j] && longs[i -1] == aim[i + j - 1])){
+                    dp[j] = true;
+                }else {
+                    dp[j] = true;
+                }
+            }
+        }
+        return dp[shorts.length]
+    }
+
+    //问题描述：龙与地下城的游戏：给定一个矩阵，骑士从左上角出发到右下角的公主那里，矩阵的每个位置有数（负数表示扣除骑士的血量，正数加上血量）
+    //要保证骑士到达公主那里的血量不少于1，求出骑士初始（左上角）最少应具备的血量是多少，注：骑士只能往右和往下走
+
+    //方法一：经典规划
+    public int minHP1(int[][] m) {
+        if (m == null || m.length == 0 || m[0] == null || m[0].length == 0)
+            return  1;
+        int row = m.length;
+        int col = m[0].length;
+        int[][] dp = new int[row--][col--];
+        dp[row][col] = m[row][col] > 0 ? 1 ：1 - m[row][col];
+        for (int j = col - 1; j >= 0; j--) {
+            dp[row][j] = Math.max(dp[row][j + 1] - m[row][j], 1);
+        }
+
+        int right = 0;
+        int down = 0;
+        for (int i = row - 1; i >= 0; i--) {
+            dp[i][col] = Math.max(dp[i + 1][col] - m[i][col], 1);
+            for(int j = col - 1; j >= 0; j--) {
+                right = Math.max(dp[i][j + 1] - m[i][j], 1);
+                down = Math.max(dp[i + 1][j] -m[i][j], 1);
+                dp[i][j] = Math.min(right; down);
+            }
+        }
+        return dp[0][0];
+    }
+
+    //方法二、空间压缩法
+    public int minHP2(int[][] m){
+        if (m == null || m.length == 0 || m[0].length == 0 || m[0] == null)
+            return 1;
+        int row = m.length;
+        int col = m[0].length;
+        int shorts = row < col ? row : col;
+        int longs = row < col ?col : row;
+        boolean rowmore = row == longs
+        int[] dp = new int[shorts];
+        dp[shorts - 1] = m[row - 1][col -1] > 0 ? 1 : 1- m[row - 1][col -1];
+        int r, c;
+        for (int i = shorts - 2;  i >= 0; i--) {
+            r = rowmore ? row - 1 : i;
+            c =rowmore ? i : row -1;
+            dp[i] = Math.max(dp[i + 1] - m[r][c], 1);
+        }
+        int right, down;
+        for (int i = longs - 2; i >= 0; i--){
+            r = rowmore ? i : shorts - 1;
+            c = rowmore ? shorts - 1 : i;
+            dp[shorts - 1] = Math.max(dp[shorts - 1] - m[r][c], 1);
+            for (int j = shorts - 2; j >= 0; j--){
+                r = rowmore ? i : j;
+                c = rowmore ? j : i;
+                right = Math.max(dp[c + 1] - m[r][c], 1);
+                down = Math.max(dp[c] - m[r][c], 1);
+                dp[j] = Math.max(right, down);
+            }
+        }
+        return dp[0];
+    }
 }
